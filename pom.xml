@@ -11,7 +11,6 @@
     <description>Description for jhipsterSampleApplication</description>
 
     <repositories>
-        <!-- jhipster-needle-maven-repository -->
         <repository>
             <id>Shibboleth</id>
             <name>Shibboleth</name>
@@ -94,7 +93,22 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <!-- jhipster-needle-maven-add-dependency-management -->
+
+            <dependency>
+				<artifactId>opensaml-core</artifactId>
+				<groupId>org.opensaml</groupId>
+				<version>4.1.1</version>
+			</dependency>
+			<dependency>
+				<artifactId>opensaml-saml-api</artifactId>
+				<groupId>org.opensaml</groupId>
+				<version>4.1.1</version>
+			</dependency>
+			<dependency>
+				<artifactId>opensaml-saml-impl</artifactId>
+				<groupId>org.opensaml</groupId>
+				<version>4.1.1</version>
+			</dependency>
         </dependencies>
     </dependencyManagement>
 

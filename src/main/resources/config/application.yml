@@ -32,6 +32,12 @@ spring:
           okta:
             assertingparty:
               metadata-uri: https://dev-35717118.okta.com/app/exk6rm0fdtCKutAmr5d7/sso/saml/metadata
+            signing:
+              credentials:
+                - private-key-location: classpath:local.key
+                  certificate-location: classpath:local.crt
+            singlelogout:
+              binding: POST
 ---
 management:
   endpoints:

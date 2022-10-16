@@ -1,13 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 import { Router } from '@angular/router';
 
 import { VERSION } from 'app/app.constants';
 import { Account } from 'app/core/auth/account.model';
 import { AccountService } from 'app/core/auth/account.service';
-import { LoginService } from 'app/login/login.service';
 import { ProfileService } from 'app/layouts/profiles/profile.service';
 import { EntityNavbarItems } from 'app/entities/entity-navbar-items';
-
+import { ApplicationConfigService } from '../../core/config/application-config.service';
 @Component({
   selector: 'jhi-navbar',
   templateUrl: './navbar.component.html',
@@ -22,7 +22,8 @@ export class NavbarComponent implements OnInit {
   entitiesNavbarItems: any[] = [];
 
   constructor(
-    private loginService: LoginService,
+    @Inject(DOCUMENT) private document: Document,
+    private applicationConfigService: ApplicationConfigService,
     private accountService: AccountService,
     private profileService: ProfileService,
     private router: Router
@@ -49,13 +50,12 @@ export class NavbarComponent implements OnInit {
   }
 
   login(): void {
-    this.router.navigate(['/login']);
+    this.document.location.href = this.applicationConfigService.getEndpointFor('api/login');
   }
 
   logout(): void {
     this.collapseNavbar();
-    this.loginService.logout();
-    this.router.navigate(['']);
+    this.document.location.href = this.applicationConfigService.getEndpointFor('logout');
   }
 
   toggleNavbar(): void {

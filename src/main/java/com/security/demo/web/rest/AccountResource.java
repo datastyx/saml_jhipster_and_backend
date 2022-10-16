@@ -10,11 +10,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
-import org.springframework.ui.Model;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
 
 @RestController
 @RequestMapping("/api")
@@ -31,8 +33,9 @@ public class AccountResource {
      * @throws AccountResourceException {@code 500 (Internal Server Error)} if the user couldn't be returned.
      */
     @GetMapping("/account")
-    public UserVM getAccount() {
-        String login = SecurityUtils.getCurrentUserLogin().orElseThrow(AccountResourceException::new);
+    public UserVM getAccount(@AuthenticationPrincipal Saml2AuthenticatedPrincipal principal) {
+        String login = principal.getName();
+        // String login = SecurityUtils.getCurrentUserLogin().orElseThrow(AccountResourceException::new);
         Set<String> authorities = SecurityContextHolder
             .getContext()
             .getAuthentication()
@@ -41,6 +44,16 @@ public class AccountResource {
             .map(GrantedAuthority::getAuthority)
             .collect(Collectors.toSet());
         return new UserVM(login, authorities);
+    }
+
+    /**
+     * {@code GET  /login} : trigger the saml2 web auth and redirect to home.
+     *
+     * @return a redirect to home.
+     */
+    @GetMapping("/login")
+    public RedirectView redirectWithUsingRedirectView(RedirectAttributes attributes) {
+        return new RedirectView("/");
     }
 
     /**
@@ -78,5 +91,4 @@ public class AccountResource {
             return login;
         }
     }
-
 }
