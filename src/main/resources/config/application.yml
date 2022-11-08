@@ -29,9 +29,9 @@ spring:
     saml2:
       relyingparty:
         registration:
-          okta:
+          wso2isrp:
             assertingparty:
-              metadata-uri: https://dev-35717118.okta.com/app/exk6rm0fdtCKutAmr5d7/sso/saml/metadata
+              metadata-uri: classpath:metadata.xml
             signing:
               credentials:
                 - private-key-location: classpath:local.key
