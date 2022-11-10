@@ -196,3 +196,22 @@ jhipster:
 # ===================================================================
 
 # application:
+
+client:
+  user:
+    name: 'client'
+    password: 'client'
+  keystore:
+    user:
+      pubkey:
+        alias: 'client'
+  sts:
+    merlin:
+      propertyfile: clientKeystore.properties
+    keystore:
+      user:
+        encrypt:
+          pubkey:
+            alias: 'idp'
+service:
+  address: 127.0.0.1

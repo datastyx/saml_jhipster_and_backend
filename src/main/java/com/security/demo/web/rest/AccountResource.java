@@ -1,17 +1,22 @@
 package com.security.demo.web.rest;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.security.demo.security.SecurityUtils;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
+import org.apache.hello_world_soap_http.Greeter;
+import org.opensaml.saml.saml2.core.Assertion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
-import org.springframework.ui.Model;
+import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,18 +29,26 @@ public class AccountResource {
 
     private final Logger log = LoggerFactory.getLogger(AccountResource.class);
 
+    @Value("${client.user.name}")
+    String clientUser;
+
+    @Autowired
+    Greeter greeter;
+
     private static class AccountResourceException extends RuntimeException {}
 
     /**
      * {@code GET  /account} : get the current user.
      *
      * @return the current user.
-     * @throws AccountResourceException {@code 500 (Internal Server Error)} if the user couldn't be returned.
+     * @throws AccountResourceException {@code 500 (Internal Server Error)} if the
+     *                                  user couldn't be returned.
      */
     @GetMapping("/account")
     public UserVM getAccount(@AuthenticationPrincipal Saml2AuthenticatedPrincipal principal) {
         String login = principal.getName();
-        // String login = SecurityUtils.getCurrentUserLogin().orElseThrow(AccountResourceException::new);
+        // String login =
+        // SecurityUtils.getCurrentUserLogin().orElseThrow(AccountResourceException::new);
         Set<String> authorities = SecurityContextHolder
             .getContext()
             .getAuthentication()
@@ -57,7 +70,8 @@ public class AccountResource {
     }
 
     /**
-     * {@code GET  /authenticate} : check if the user is authenticated, and return its login.
+     * {@code GET  /authenticate} : check if the user is authenticated, and return
+     * its login.
      *
      * @param request the HTTP request.
      * @return the login if the user is authenticated.
@@ -66,6 +80,15 @@ public class AccountResource {
     public String isAuthenticated(HttpServletRequest request) {
         log.debug("REST request to check if the current user is authenticated");
         return request.getRemoteUser();
+    }
+
+    @GetMapping("/secToken")
+    public String token() {
+        log.debug("REST request to display current SAML token");
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String credential = ((Saml2Authentication) authentication).getSaml2Response();
+
+        return greeter.greetMe(clientUser);
     }
 
     private static class UserVM {
