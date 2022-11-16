@@ -1,5 +1,6 @@
 package com.security.demo.config;
 
+import com.security.demo.client.ActAsCallbackHandler;
 import com.security.demo.client.ClaimsCallbackHandler;
 import com.security.demo.client.SAML2stsCallbackHandler;
 import com.security.demo.client.UsernameTokenSubCallbackHandler;
@@ -27,6 +28,7 @@ import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.ext.logging.LoggingFeature;
 import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
+import org.apache.cxf.rt.security.SecurityConstants;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.ws.security.trust.STSClient;
 import org.apache.hello_world_soap_http.Greeter;
@@ -108,6 +110,11 @@ public class ClientConfiguration {
     }
 
     @Bean
+    ActAsCallbackHandler actAsCallbackHandler() {
+        return new ActAsCallbackHandler();
+    }
+
+    @Bean
     STSClient stsClient() throws IOException, GeneralSecurityException {
         STSClient stsClient = new STSClient(cxf());
         stsClient.setRequiresEntropy(false);
@@ -119,6 +126,7 @@ public class ClientConfiguration {
         stsClient.setEndpointName("{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}wso2carbon-stsHttpsSoap12Endpoint");
         stsClient.setClaimsCallbackHandler(claimsCallbackHandler());
         stsClient.setFeatures(Arrays.asList(loggingFeature()));
+        stsClient.setActAs(actAsCallbackHandler());
         final Map<String, Object> propertyMap = new HashMap<String, Object>();
         propertyMap.put("security.username", clientUsername);
         propertyMap.put("security.encryption.properties", merlinPropertyFile);
@@ -127,6 +135,7 @@ public class ClientConfiguration {
         propertyMap.put("security.sts.token.properties", stsTokenProperties);
         propertyMap.put("security.sts.token.usecert", "true");
         propertyMap.put("security.callback-handler", wsPasswordCallbackHandler());
+
         stsClient.setProperties(propertyMap);
         stsClient.setTlsClientParameters(tlsClientParameters());
         return stsClient;

@@ -85,8 +85,6 @@ public class AccountResource {
     @GetMapping("/secToken")
     public String token() {
         log.debug("REST request to display current SAML token");
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String credential = ((Saml2Authentication) authentication).getSaml2Response();
 
         return greeter.greetMe(clientUser);
     }
