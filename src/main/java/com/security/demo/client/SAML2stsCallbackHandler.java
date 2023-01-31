@@ -58,7 +58,9 @@ public class SAML2stsCallbackHandler implements CallbackHandler {
                 } catch (Exception ex) {
                     LOGGER.error(null, ex);
                     //ClientMain.getInstance().notifyException(Thread.currentThread(), new Exception("STS connexion failed.\n"));
-                    throw new RuntimeException(new Exception("STS connexion failed with message : " + ex.getMessage()));
+                    throw new RuntimeException(
+                        new Exception("SAML2stsCallbackHandler: Connexion to STS failed with message : " + ex.getMessage())
+                    );
                 }
                 if (LOGGER.isInfoEnabled()) {
                     LOGGER.info("Token set");

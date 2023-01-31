@@ -34,9 +34,9 @@ public class ClaimsCallbackHandler implements CallbackHandler {
         Element claimsElement = doc.createElementNS("http://docs.oasis-open.org/ws-sx/ws-trust/200512", "Claims");
         claimsElement.setAttributeNS(null, "Dialect", ClaimConstant.CLAIMS_DIALECT);
         //        emailaddress claim
-        Element emailAddressClaimType = doc.createElementNS(ClaimConstant.CLAIMS_DIALECT, "ClaimType");
-        emailAddressClaimType.setAttributeNS(null, "Uri", ClaimConstant.EMAIL_ADDRESS_CLAIM.getURI().toString());
-        claimsElement.appendChild(emailAddressClaimType);
+        // Element emailAddressClaimType = doc.createElementNS(ClaimConstant.CLAIMS_DIALECT, "ClaimType");
+        // emailAddressClaimType.setAttributeNS(null, "Uri", ClaimConstant.EMAIL_ADDRESS_CLAIM.getURI().toString());
+        // claimsElement.appendChild(emailAddressClaimType);
 
         return claimsElement;
     }

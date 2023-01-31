@@ -82,9 +82,9 @@ public class AccountResource {
         return request.getRemoteUser();
     }
 
-    @GetMapping("/secToken")
+    @GetMapping("/callBackend")
     public String token() {
-        log.debug("REST request to display current SAML token");
+        log.debug("SOAP request to the backend");
 
         return greeter.greetMe(clientUser);
     }

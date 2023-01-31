@@ -56,6 +56,9 @@ public class ClientConfiguration {
     String keyPassword = "client";
 
     String stsTokenProperties = "src/main/resources/clientKeystore.properties";
+
+    String stsURL = "https://localhost:8090/SecurityTokenService/UT"; // endpoint of the STS to retrieve delegation tokens
+
     String wsdlLocation = "src/main/resources/hello_world.wsdl";
     QName serviceName = new QName("http://apache.org/hello_world_soap_http", "SOAPService");
     QName endpointName = new QName("http://apache.org/hello_world_soap_http", "SoapPort");
@@ -143,7 +146,7 @@ public class ClientConfiguration {
 
     @Bean
     SAML2stsCallbackHandler saml2stsCallbackHandler() throws IOException, GeneralSecurityException {
-        SAML2stsCallbackHandler saml2stsCallbackHandler = new SAML2stsCallbackHandler("https://service/services/echo");
+        SAML2stsCallbackHandler saml2stsCallbackHandler = new SAML2stsCallbackHandler(stsURL);
         saml2stsCallbackHandler.setStsClient(stsClient());
 
         return saml2stsCallbackHandler;

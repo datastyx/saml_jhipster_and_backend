@@ -36,6 +36,9 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.document.location.href = this.applicationConfigService.getEndpointFor('api/login');
   }
 
+  callBackend(): void {
+    this.document.location.href = this.applicationConfigService.getEndpointFor('api/callBackend');
+  }
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();

@@ -232,10 +232,10 @@
 
     <wsdl:service name="wso2carbon-sts">
         <wsdl:port name="wso2carbon-stsHttpsSoap11Endpoint" binding="tns:Transport_Binding">
-            <soap:address location="https://localhost:9443/services/wso2carbon-sts.wso2carbon-stsHttpsSoap11Endpoint/"/>
+            <soap:address location="https://localhost:8090/SecurityTokenService/UT"/>
         </wsdl:port>
         <wsdl:port name="wso2carbon-stsHttpsSoap12Endpoint" binding="tns:Transport_Binding">
-            <soap12:address location="https://localhost:9443/services/wso2carbon-sts.wso2carbon-stsHttpsSoap12Endpoint/"/>
+            <soap12:address location="https://localhost:8090/SecurityTokenService/UT"/>
         </wsdl:port>
     </wsdl:service>
 
