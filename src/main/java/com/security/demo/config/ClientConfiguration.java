@@ -125,8 +125,8 @@ public class ClientConfiguration {
         stsClient.setKeyType("http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey");
         stsClient.setAddressingNamespace("http://schemas.xmlsoap.org/ws/2004/08/addressing");
         stsClient.setWsdlLocation("src/main/resources/ws-trust.wsdl");
-        stsClient.setServiceName("{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}wso2carbon-sts");
-        stsClient.setEndpointName("{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}wso2carbon-stsHttpsSoap12Endpoint");
+        stsClient.setServiceName("{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}SecurityTokenService");
+        stsClient.setEndpointName("{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}UT_Port");
         stsClient.setClaimsCallbackHandler(claimsCallbackHandler());
         stsClient.setFeatures(Arrays.asList(loggingFeature()));
         stsClient.setActAs(actAsCallbackHandler());
@@ -134,6 +134,7 @@ public class ClientConfiguration {
         propertyMap.put("security.username", clientUsername);
         propertyMap.put("security.encryption.properties", merlinPropertyFile);
         propertyMap.put("security.encryption.username", encryptionUsername);
+        propertyMap.put("security.signature.properties", "clientKeystore.properties");
         propertyMap.put("security.sts.token.username", stsTokenUsername);
         propertyMap.put("security.sts.token.properties", stsTokenProperties);
         propertyMap.put("security.sts.token.usecert", "true");
