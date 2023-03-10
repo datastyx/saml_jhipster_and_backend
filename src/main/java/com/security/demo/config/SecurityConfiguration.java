@@ -1,9 +1,11 @@
 package com.security.demo.config;
 
-import com.security.demo.security.*;
+import com.security.demo.security.AuthoritiesConstants;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.convert.converter.Converter;
@@ -14,11 +16,20 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider;
 import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider.ResponseToken;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
+import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
+import org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationFilter;
+import org.springframework.security.saml2.provider.service.web.DefaultRelyingPartyRegistrationResolver;
+import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationResolver;
+import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationTokenConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.session.ChangeSessionIdAuthenticationStrategy;
+import org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
@@ -34,6 +45,12 @@ public class SecurityConfiguration {
     private final JHipsterProperties jHipsterProperties;
 
     private final CorsFilter corsFilter;
+
+    @Autowired
+    RelyingPartyRegistrationRepository relyingPartyRegistrationRepository;
+
+    @Autowired
+    private TokenExpiryAuthenticationProvider tokenExpiryAuthenticationProvider;
 
     public SecurityConfiguration(CorsFilter corsFilter, JHipsterProperties jHipsterProperties) {
         this.corsFilter = corsFilter;
@@ -58,17 +75,34 @@ public class SecurityConfiguration {
     }
 
     @Bean
+    Saml2AuthenticationTokenConverter saml2AuthenticationTokenConverter() {
+        return new Saml2AuthenticationTokenConverter(
+            ((RelyingPartyRegistrationResolver) new DefaultRelyingPartyRegistrationResolver(relyingPartyRegistrationRepository))
+        );
+    }
+
+    @Bean
+    SessionRegistry sessionRegistry() {
+        return new SessionRegistryImpl();
+    }
+
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         // @formatter:off
         OpenSaml4AuthenticationProvider authenticationProvider = new OpenSaml4AuthenticationProvider();
         authenticationProvider.setResponseAuthenticationConverter(groupsConverter());
-
+        ProviderManager providerManager = new ProviderManager(tokenExpiryAuthenticationProvider,authenticationProvider);
+        
+        // add a sessionAuthentication strategy to keep track of token expiry date
+        // saml2WebSsoAuthenticationFilter.
+        CompositeSessionAuthenticationStrategy csas = new CompositeSessionAuthenticationStrategy(Arrays.asList(new ChangeSessionIdAuthenticationStrategy(), new SAML2TokenExpirySessionAuthenticationStrategy()));
+ http.sessionManagement().sessionAuthenticationStrategy(csas);
         http
             .csrf()
             .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
         http
            .addFilterBefore(corsFilter, CsrfFilter.class);
-      
+           http.addFilterBefore(new TokenSessionTimeoutFilter(providerManager,saml2AuthenticationTokenConverter(),sessionRegistry()), Saml2WebSsoAuthenticationFilter.class);
         http            
             .headers()
                 .contentSecurityPolicy(jHipsterProperties.getSecurity().getContentSecurityPolicy())
@@ -96,7 +130,8 @@ public class SecurityConfiguration {
                 .antMatchers("/management/**").hasAuthority(AuthoritiesConstants.ADMIN)
                 ;
         http.saml2Login(saml2 -> saml2
-                .authenticationManager(new ProviderManager(authenticationProvider)));
+                .authenticationManager(providerManager));
+        
         // http.saml2Login();
         http.logout(logout -> logout.logoutSuccessUrl("/"));
 
